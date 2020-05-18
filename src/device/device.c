@@ -169,9 +169,8 @@ static resource_t round(resource_t val, unsigned long pow)
 	mask = (1ULL << pow) - 1ULL;
 	val += mask;
 	val &= ~mask;
-	return val;
 	print_func_exit();
-	return ALIGN_UP(val, POWER_OF_2(pow));
+	return val;
 }
 
 static const char *resource2str(struct resource *res)
@@ -333,13 +332,16 @@ static const struct device *largest_resource(struct bus *bus,
 static void compute_resources(struct bus *bus, struct resource *bridge,
 			      unsigned long type_mask, unsigned long type)
 {
+	print_func_entry();
 	const struct device *dev;
 	struct resource *resource;
 	resource_t base;
 	base = round(bridge->base, bridge->align);
 
-	if (!bus)
+	if (!bus) {
+		print_func_exit();
 		return;
+	}
 
 	printk(BIOS_SPEW,  "%s %s: base: %llx size: %llx align: %d gran: %d"
 	       " limit: %llx\n", dev_path(bus->dev), resource2str(bridge),
@@ -461,6 +463,7 @@ static void compute_resources(struct bus *bus, struct resource *bridge,
 	       " limit: %llx done\n", dev_path(bus->dev),
 	       resource2str(bridge),
 	       base, bridge->size, bridge->align, bridge->gran, bridge->limit);
+	print_func_exit();
 }
 
 /**
@@ -480,13 +483,16 @@ static void compute_resources(struct bus *bus, struct resource *bridge,
 static void allocate_resources(struct bus *bus, struct resource *bridge,
 			       unsigned long type_mask, unsigned long type)
 {
+	print_func_entry();
 	const struct device *dev;
 	struct resource *resource;
 	resource_t base;
 	base = bridge->base;
 
-	if (!bus)
+	if (!bus) {
+		print_func_exit();
 		return;
+	}
 
 	printk(BIOS_SPEW, "%s %s: base:%llx size:%llx align:%d gran:%d "
 	       "limit:%llx\n", dev_path(bus->dev),
@@ -617,10 +623,13 @@ static void allocate_resources(struct bus *bus, struct resource *bridge,
 						   IORESOURCE_PREFETCH));
 		}
 	}
+	print_func_exit();
 }
 
 static int resource_is(struct resource *res, u32 type)
 {
+	print_func_entry();
+	print_func_exit();
 	return (res->flags & IORESOURCE_TYPE_MASK) == type;
 }
 
@@ -631,6 +640,7 @@ struct constraints {
 static struct resource *resource_limit(struct constraints *limits,
 				       struct resource *res)
 {
+	print_func_entry();
 	struct resource *lim = NULL;
 
 	/* MEM, or I/O - skip any others. */
@@ -639,12 +649,14 @@ static struct resource *resource_limit(struct constraints *limits,
 	else if (resource_is(res, IORESOURCE_IO))
 		lim = &limits->io;
 
+	print_func_exit();
 	return lim;
 }
 
 static void constrain_resources(const struct device *dev,
 				struct constraints* limits)
 {
+	print_func_entry();
 	const struct device *child;
 	struct resource *res;
 	struct resource *lim;
@@ -697,10 +709,12 @@ static void constrain_resources(const struct device *dev,
 				constrain_resources(child, limits);
 		}
 	}
+	print_func_exit();
 }
 
 static void avoid_fixed_resources(const struct device *dev)
 {
+	print_func_entry();
 	struct constraints limits;
 	struct resource *res;
 	struct resource *lim;
@@ -755,6 +769,7 @@ static void avoid_fixed_resources(const struct device *dev)
 		printk(BIOS_SPEW, "%s:@%s %02lx base %08llx limit %08llx\n",
 			__func__, dev_path(dev), res->index, res->base, res->limit);
 	}
+	print_func_exit();
 }
 
 struct device *vga_pri = NULL;
@@ -1046,6 +1061,7 @@ void dev_enumerate(void)
 void dev_configure(void)
 {
 	print_func_entry();
+	struct resource *res;
 	const struct device *root;
 	const struct device *child;
 

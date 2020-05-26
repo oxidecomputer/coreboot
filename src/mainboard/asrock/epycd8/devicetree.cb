@@ -1,0 +1,10 @@
+chip mainboard/amd/romepsp
+	device cpu_cluster 0 on
+		chip cpu/amd/romepsp
+			device lapic 0 on end
+		end
+	end
+	device domain 0 on
+		device pci 0.0 mandatory end
+	end
+end

@@ -1,0 +1,2 @@
+config BOARD_ASROCK_EPYCD8
+	bool "Rack EPYCD8"
